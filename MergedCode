@@ -4,6 +4,9 @@ import mediapipe as mp
 from scipy.signal import find_peaks
 import numpy as np
 from mediapipe.framework.formats import landmark_pb2
+from matplotlib.collections import LineCollection
+from matplotlib.colors import LinearSegmentedColormap
+
 
 BaseOptions = mp.tasks.BaseOptions
 PoseLandmarker = mp.tasks.vision.PoseLandmarker
@@ -11,14 +14,14 @@ PoseLandmarkerOptions = mp.tasks.vision.PoseLandmarkerOptions
 VisionRunningMode = mp.tasks.vision.RunningMode
 
 # Video file 
-videoFileName = 'ZTest.mp4'
+videoFileName = 'Marchingband(2).mp4'
 videoOutputFileName = videoFileName + '_Full_output'
 plotName = videoFileName + '_Full_coordinates_plot'
 swayPlotName = videoFileName + '_Full_Sway_plot'
-rockingPlotName = videoFileName + '_Rocking_plot'
 handsPlotName_X = videoFileName + '_Full_Hands_plot_X'
 handsPlotName_Y = videoFileName + '_Full_Hands_plot_Y'
 coordinatesPlotName = videoFileName + '_Full_coordinates_plot'
+conductPath = videoFileName + '_Full_conducting_path' 
 
 # Function to draw landmarks on the image
 def draw_landmarks_on_image(rgb_image, detection_result):
@@ -69,7 +72,6 @@ text_display_counter = 0
 
 # For video input:
 cap = cv2.VideoCapture(videoFileName)
-
 if not cap.isOpened():
     print("Error: Could not open video file.")
     exit()
@@ -94,7 +96,6 @@ out = cv2.VideoWriter(videoOutputFileName + '.avi', cv2.VideoWriter_fourcc(*'MJP
 
 # Swaying variables
 default_midpoint_x = 0
-default_midpoint_z = 0
 sway_threshold = 0.025  # Threshold for swaying detection
 rocking_threshold = 0.05  # Threshold for swaying detection
 midpoints_x = []
@@ -149,13 +150,10 @@ while cap.isOpened():
                     
                     # Calculate midpoints and movement
                     x12, x11 = landmarks[12].x, landmarks[11].x
-                    z12, z11 = landmarks[12].z, landmarks[11].z
                         
                     midpoint_x = abs(x12 - x11) * 0.5 + x12
-                    midpoint_z = z12
                         
                     midpoints_x.append(midpoint_x)
-                    midpoints_z.append(midpoint_z)
                         
                     # Track hand movements
                     left_hand_x.append(landmarks[15].x)
@@ -165,7 +163,6 @@ while cap.isOpened():
 
                     if midpointflag:
                         default_midpoint_x = midpoint_x
-                        default_midpoint_z = midpoint_z
                         midpointflag = False
 
     # Display the current frame number
@@ -329,12 +326,6 @@ while cap.isOpened():
         if midpoint_x > default_midpoint_x + sway_threshold or midpoint_x < default_midpoint_x - sway_threshold:
             cv2.putText(annotated_image_bgr, "Swaying", (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)
 
-    # Rocking
-    if frame_index < len(midpoints_z):
-        midpoint_z = midpoints_z[frame_index]
-        if midpoint_z > default_midpoint_z + rocking_threshold or midpoint_z < default_midpoint_z - rocking_threshold:
-            cv2.putText(annotated_image_bgr, "Rocking", (50, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)
-
     cv2.putText(annotated_image_bgr, f'Frame: {frame_index}', (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 2)
     cv2.imshow('Annotated Frames', annotated_image_bgr)
     out.write(annotated_image_bgr)
@@ -376,14 +367,33 @@ plt.grid(True)
 plt.savefig(coordinatesPlotName +'.png')
 plt.show()
 
-# Plot x and y coordinates
-plt.figure(figsize=(10, 6))
-plt.plot(x_proc, y_proc, '-', color='blue', label="Coordinate points")  # Scatter plot of (x, y) points
+# # Plot x and y coordinates
+# Create the figure
+plt.figure(figsize=(12, 6))
+valid_mask = ~(np.isnan(x_proc) | np.isnan(y_proc))
+x_valid = x_proc[valid_mask]
+y_valid = y_proc[valid_mask]
+y_valid = -y_valid  
+points = np.array([x_valid, y_valid]).T.reshape(-1, 1, 2)
+segments = np.concatenate([points[:-1], points[1:]], axis=1)
+colors = ['blue', 'red']
+n_bins = len(x_valid)
+custom_cmap = LinearSegmentedColormap.from_list("custom", colors, N=n_bins)
+norm = plt.Normalize(0, len(x_valid))
+lc = LineCollection(segments, cmap=custom_cmap, norm=norm)
+lc.set_array(np.arange(len(x_valid)))
+plt.gca().add_collection(lc)
+plt.xlim(np.nanmin(x_valid), np.nanmax(x_valid))
+plt.ylim(np.nanmin(y_valid), np.nanmax(y_valid))
+cbar = plt.colorbar(lc)
+cbar.set_label('Frame Number')
 plt.xlabel("X-Coords")
 plt.ylabel("Y-Coords")
-plt.title("X and Y Coordinates in Video")
-plt.legend()
+plt.title("Conducting Pattern")
+plt.grid(True, linestyle='--', alpha=0.7)
+plt.savefig(conductPath + '.png', bbox_inches='tight')
 plt.show()
+
 
 # Plot the swaying detection graph
 plt.figure(figsize=(12, 6))
@@ -397,20 +407,6 @@ plt.ylabel('Midpoint X Value')
 plt.legend()
 plt.grid(True)
 plt.savefig(swayPlotName + '.png')
-plt.show()
-
-# Plot the rocking detection graph
-plt.figure(figsize=(12, 6))
-plt.plot(range(len(midpoints_z)), midpoints_z, label='Current Midpoint Z', color='b', alpha=0.7)
-plt.axhline(y=default_midpoint_z, color='k', linestyle='-', label='Default Midpoint Z')
-plt.axhline(y=default_midpoint_z + rocking_threshold, color='r', linestyle='--', label='Upper Threshold Z')
-plt.axhline(y=default_midpoint_z - rocking_threshold, color='r', linestyle='--', label='Lower Threshold Z')
-plt.title('Rocking Detection Over Frame Number')
-plt.xlabel('Frame Number')
-plt.ylabel('Midpoint Z Value')
-plt.legend()
-plt.grid(True)
-plt.savefig(rockingPlotName + '.png')
 plt.show()
 
 # Plot the hand coordinates graph x 
