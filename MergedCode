@@ -7,14 +7,13 @@ from mediapipe.framework.formats import landmark_pb2
 from matplotlib.collections import LineCollection
 from matplotlib.colors import LinearSegmentedColormap
 
-
 BaseOptions = mp.tasks.BaseOptions
 PoseLandmarker = mp.tasks.vision.PoseLandmarker
 PoseLandmarkerOptions = mp.tasks.vision.PoseLandmarkerOptions
 VisionRunningMode = mp.tasks.vision.RunningMode
 
 # Video file 
-videoFileName = 'Marchingband(2).mp4'
+videoFileName = '4-4stacatto(3).mp4'
 videoOutputFileName = videoFileName + '_Full_output'
 plotName = videoFileName + '_Full_coordinates_plot'
 swayPlotName = videoFileName + '_Full_Sway_plot'
@@ -114,6 +113,7 @@ while cap.isOpened():
     if not success:
         if processing_active:
             processing_intervals.append((current_start_frame, frame_number - 1))
+            print(f"Processing stopped at frame {frame_number}")
         break
 
     frame_timestamp_ms = round(cap.get(cv2.CAP_PROP_POS_MSEC))
