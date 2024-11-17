@@ -1,6 +1,4 @@
-import mediapipe as mp
-from mediapipe.framework.formats import landmark_pb2
-import numpy as np
+from imports import *
 
 class mediaPipeDeclaration:
 

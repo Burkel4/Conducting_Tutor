@@ -1,37 +1,56 @@
-import cv2
+from imports import *
 
-def initializeVideo():
+# returns the name of the video file being processed
+def initialize_video():
     videoFileName = '4-4stacatto(3).mp4'
     return videoFileName
 
-def videoPlotName():
-    videoFileName = initializeVideo()
+# returns name for the final output video
+def video_out_name():
+    videoFileName = initialize_video()
+    outName = videoFileName + "_Fill_output"
+    return outName
+
+# returns name for the main coordinates plot
+def video_plot_name():
+    videoFileName = initialize_video()
     plotName = videoFileName + '_Full_coordinates_plot'
     return plotName
 
-def videoSwayPlotName():
-    videoFileName = initializeVideo()
+# returns name for the sway analysis plot
+def video_sway_plot_Name():
+    videoFileName = initialize_video()
     swayPlotName = videoFileName + '_Full_Sway_plot'
     return swayPlotName
 
-def videoHandsPlot_XName():
-    videoFileName = initializeVideo()
+# returns name for the x-axis hand movement plot
+def video_hands_plot_x_name():
+    videoFileName = initialize_video()
     handsPlotName_X = videoFileName + '_Full_Hands_plot_X'  
     return handsPlotName_X
 
-def videohandsPlotName_YName():
-    videoFileName = initializeVideo()
+# returns name for the y-axis hand movement plot
+def video_hands_plot_y_name():
+    videoFileName = initialize_video()
     handsPlotName_Y = videoFileName + '_Full_Hands_plot_Y'
     return handsPlotName_Y
 
-def videoBeatPlotName(): #beats name
-    videoFileName = initializeVideo()
+# returns name for the beat detection plot
+def video_beat_plot_name():
+    videoFileName = initialize_video()
     beatPlotName = videoFileName + '_Full_coordinates_plot'
     return beatPlotName
 
-def videoConductPathName():
-    videoFileName = initializeVideo()
+# returns name for the conducting path visualization
+def video_conduct_path_name():
+    videoFileName = initialize_video()
     conductPath = videoFileName + '_Full_conducting_path' 
     return conductPath
+
+# returns name for the bpm text file
+def video_bpm_output_name():
+    videoFileName = initialize_video()
+    bpmOutputName = videoFileName + '_auto_BPM.txt'
+    return bpmOutputName
 
         
