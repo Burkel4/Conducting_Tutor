@@ -3,18 +3,6 @@ from imports import *
 # generates all analysis graphs from the collected data
 def generate_all_graphs(cycle_one):
 
-    if cycle_one.swaying_detector.midpoints_x:
-        swaying_graph(cycle_one.swaying_detector.midpoints_x,
-                     cycle_one.swaying_detector.default_midpoint_x,
-                     cycle_one.swaying_detector.sway_threshold)
-    
-    if cycle_one.mirror_detector.left_hand_x:
-        mirror_x_coordinate_graph(cycle_one.mirror_detector.left_hand_x,
-                                cycle_one.mirror_detector.right_hand_x)
-        
-        mirror_y_coordinate_graph(cycle_one.mirror_detector.left_hand_y,
-                                cycle_one.mirror_detector.right_hand_y)
-    
     beat_plot_graph(cycle_one.processing_intervals, 
                    cycle_one.filtered_significant_beats,
                    cycle_one.x_peaks, cycle_one.x_valleys, 
@@ -22,6 +10,16 @@ def generate_all_graphs(cycle_one):
                    cycle_one.x, cycle_one.y)
     
     hand_path_graph(cycle_one.x, cycle_one.y)
+
+    swaying_graph(cycle_one.swaying_detector.midpoints_x, cycle_one.swaying_detector.default_midpoint_x,cycle_one.swaying_detector.sway_threshold)
+    
+
+    mirror_x_coordinate_graph(cycle_one.mirror_detector.left_hand_x,
+                                cycle_one.mirror_detector.right_hand_x)
+        
+    mirror_y_coordinate_graph(cycle_one.mirror_detector.left_hand_y,
+                                cycle_one.mirror_detector.right_hand_y)
+
 
 # generates plot showing beat detection and coordinate data
 def beat_plot_graph(intervals, beats, x_peaks, x_valleys, y_peaks, y_valleys, x, y):
@@ -63,6 +61,7 @@ def hand_path_graph(x_proc, y_proc):
     # prepare valid data points
     valid_mask = ~(np.isnan(x_proc) | np.isnan(y_proc))
     x_valid = x_proc[valid_mask]
+    # x_valid = -x_valid # turn on iff the x cord is inverted
     y_valid = y_proc[valid_mask]
     y_valid = -y_valid  
     
