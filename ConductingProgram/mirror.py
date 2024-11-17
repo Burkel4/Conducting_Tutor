@@ -1,4 +1,4 @@
-
+from imports import *
 
 class mirrorDetection:
 
