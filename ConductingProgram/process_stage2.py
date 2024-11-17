@@ -96,6 +96,10 @@ def output_process_video(cap, out, detector, filtered_significant_beats, process
             break
 
         annotated_image_bgr = process_frame(cap, detector)
+        
+        # add check for None
+        if annotated_image_bgr is None:
+            continue
 
         if is_within_intervals(frame_index, processing_intervals):
             text_display_counter = print_beats(frame_index, annotated_image_bgr, 
