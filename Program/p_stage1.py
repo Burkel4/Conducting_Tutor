@@ -1,10 +1,12 @@
 from imports import *
 
 # processes a single frame and returns the annotated image and detection results
-def process_frame(cap, detector):
-    success, image = cap.read()
-    if not success:
+def process_frame(cap, detector, image):
+    if image is None:
         return None, None
+
+    # Add debug print for frame position
+    print(f"Current frame position: {int(cap.get(cv2.CAP_PROP_POS_FRAMES))}", end='\r')
 
     # process image through mediapipe
     frame_timestamp_ms = round(cap.get(cv2.CAP_PROP_POS_MSEC))
@@ -70,17 +72,27 @@ def handle_user_input(key, frame_number, processing_active, current_start_frame,
 
     return processing_active, current_start_frame
 
-# main video processing loop for the first pass through the video
+# main video processing loop
 def process_video(cap, out, detector, frame_array, processed_frame_array, processing_intervals, swaying_detector, mirror_detector):
+    print("\n=== Video Processing Debug Information ===")
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
+    print(f"Starting video processing...")
+    print(f"Expected total frames: {total_frames}")
+    print(f"Video FPS: {fps}")
+    
     # initialize processing variables
     frame_number = 0
+    frames_read = 0
     processing_active = False
     current_start_frame = None
 
     while cap.isOpened():
         success, image = cap.read()
+        frames_read += 1
+        
         if not success:
-            # save final interval if processing was active
+            print(f"\nTotal frames read: {frames_read}")
             if processing_active and current_start_frame is not None:
                 processing_intervals.append((current_start_frame, frame_number - 1))
                 print(f"Ended processing at frame: {frame_number - 1}")
@@ -91,7 +103,7 @@ def process_video(cap, out, detector, frame_array, processed_frame_array, proces
             continue
 
         # process current frame
-        annotated_image_bgr, detection_result = process_frame(cap, detector)
+        annotated_image_bgr, detection_result = process_frame(cap, detector, image)
 
         if annotated_image_bgr is not None:
             # display and process frame
@@ -121,6 +133,9 @@ def process_video(cap, out, detector, frame_array, processed_frame_array, proces
     out.release()
     cv2.destroyAllWindows()
 
+    print(f"Actual processed frames: {frame_number}")
+    print(f"Number of processing intervals: {len(processing_intervals)}")
+    print("=====================================\n")
+
     return frame_array, processed_frame_array, processing_intervals
     
-

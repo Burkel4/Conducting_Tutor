@@ -150,4 +150,3 @@ def mirror_y_coordinate_graph(left_hand_y, right_hand_y):
     plt.grid(True)
     plt.savefig(video_hands_plot_y_name() + '.png')
     plt.show()
-

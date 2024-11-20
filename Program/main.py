@@ -31,11 +31,29 @@ class cycleOne:
         self.fps = int(self.cap.get(cv2.CAP_PROP_FPS))
         self.out = cv2.VideoWriter(video_beat_plot_name() + '.avi', cv2.VideoWriter_fourcc(*'MJPG'), self.fps, (self.frame_width, self.frame_height))
 
+        # Add debugging info after video capture initialization
+        print("\n=== Cycle One Debug Information ===")
+        print(f"Video File: {self.videoFileName}")
+        print(f"Frame Width: {self.frame_width}")
+        print(f"Frame Height: {self.frame_height}")
+        print(f"FPS: {self.fps}")
+        total_frames = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        print(f"Total Frames: {total_frames}")
+        print(f"Video Duration: {total_frames/self.fps:.2f} seconds")
+        print("================================\n")
+
         # process video and detect beats
         process_video(self.cap, self.out, self.detector, self.frame_array, self.processed_frame_array, self.processing_intervals, self.swaying_detector, self.mirror_detector)
         
         # analyze detected movements for beats
         (self.filtered_significant_beats, self.x_peaks, self.x_valleys, self.y_peaks, self.y_valleys, self.x, self.y) = filter_beats(self.frame_array, self.processed_frame_array)
+
+        # After beat detection, add more debug info
+        print("\n=== Beat Detection Results ===")
+        print(f"Total frames processed: {len(self.frame_array)}")
+        print(f"Number of beats detected: {len(self.filtered_significant_beats)}")
+        print(f"Processing intervals: {self.processing_intervals}")
+        print("============================\n")
 
 
 # handles the second pass through the video, visualizing detected beats and generating analysis

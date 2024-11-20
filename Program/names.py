@@ -2,14 +2,14 @@ from imports import *
 
 # returns the name of the video file being processed
 def initialize_video():
-    videoFileName = '4-4stacatto(3).mp4'
+    videoFileName = 'video/4-4stacatto(3).mp4'
     return videoFileName
 
 # returns name for the final output video
 def video_out_name():
     videoFileName = initialize_video()
-    outName = videoFileName + "_Fill_output"
-    return outName
+    outNames = videoFileName + "_Fill_output"
+    return outNames
 
 # returns name for the main coordinates plot
 def video_plot_name():

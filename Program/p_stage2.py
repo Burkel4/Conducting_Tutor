@@ -1,9 +1,9 @@
 from imports import *
 
 # processes a single frame and returns the annotated image
-def process_frame(cap, detector):
-    success, image = cap.read()
-    if not success:
+def process_frame(cap, detector, image):
+
+    if image is None:
         return None
 
     image_bgr = image
@@ -82,10 +82,19 @@ def print_beats(frame_index, annotated_image_bgr, filtered_significant_beats, be
 
 # processes video for second pass, displaying beats and generating analysis
 def output_process_video(cap, out, detector, filtered_significant_beats, processing_intervals, swaying_detector):
-    
+    # Add debug information at start
+    print("\n=== Cycle Two Debug Information ===")
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    print(f"FPS: {fps}")
+    print(f"Total Frames: {total_frames}")
+    print(f"Video Duration: {total_frames/fps:.2f} seconds")
+    print(f"Number of beats to display: {len(filtered_significant_beats)}")
+    print(f"Processing intervals: {processing_intervals}")
+    print("================================\n")
+
     # initialize parameters
     bpm_window = 5
-    fps = int(cap.get(cv2.CAP_PROP_FPS))
     beats = []
     text_display_counter = 0
     frame_index = 0
@@ -95,7 +104,7 @@ def output_process_video(cap, out, detector, filtered_significant_beats, process
         if not success:
             break
 
-        annotated_image_bgr = process_frame(cap, detector)
+        annotated_image_bgr = process_frame(cap, detector, image)
         
         # add check for None
         if annotated_image_bgr is None:
