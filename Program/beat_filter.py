@@ -27,10 +27,12 @@ def filter_beats(frame_array, processed_frame_array):
     y = np.array(y).flatten()
 
     # find peaks and valleys in raw coordinates
-    y_peaks, _ = find_peaks(y)
-    y_valleys, _ = find_peaks(-y)  # negate y for valleys
 
-    # process filtered coordinates
+    y_peaks, _ = find_peaks(y, prominence=0.005, distance = 5)
+    y_valleys, _ = find_peaks(-y, prominence=0.005, distance = 5)
+
+    # process user-selected coordinates
+    #x_proc = np.array([coord[0] for coord in processed_frame_array]).flatten()
     y_proc = np.array([coord[1] for coord in processed_frame_array]).flatten()
 
     # find peaks and valleys in processed coordinates
@@ -40,7 +42,6 @@ def filter_beats(frame_array, processed_frame_array):
     # convert peak/valley indices to lists
     y_peaks_proc = list(y_peaks_proc)
     y_valleys_proc = list(y_valleys_proc)
-
 
     filtered_significant_beats = list(y_peaks)
     # Get the x,y coordinates for each beat

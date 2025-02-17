@@ -3,7 +3,7 @@ from imports import *
 # generates all analysis graphs from the collected data
 def generate_all_graphs(cycle_one):
 
-    beat_plot_graph(cycle_one.processing_intervals, cycle_one.filtered_significant_beats, cycle_one.y_peaks, cycle_one.y_valleys, cycle_one.y)    
+    beat_plot_graph(cycle_one.processing_intervals, cycle_one.filtered_significant_beats, cycle_one.y_peaks, cycle_one.y_valleys, cycle_one.y)
     
     hand_path_graph(cycle_one.x, cycle_one.y)
 
