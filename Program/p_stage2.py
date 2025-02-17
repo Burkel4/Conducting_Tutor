@@ -55,22 +55,22 @@ def print_beats(frame_index, annotated_image_bgr, filtered_significant_beats, be
 
     # setup text display parameters
     font = pygame.font.Font(None, 50)
-    #font = cv2.FONT_HERSHEY_SIMPLEX
+    font_out = cv2.FONT_HERSHEY_SIMPLEX
     font_scale = 2
     font_thickness = 2
     font_color = (255, 255, 255)
     text = font.render("Beat!", True, (255, 255, 255))
-    #text = "Beat!"
-    #text_size = cv2.getTextSize(text, font, font_scale, font_thickness)[0]
+    text_out = "Beat!"
+    text_size = cv2.getTextSize(text_out, font_out, font_scale, font_thickness)[0]
     text_x = (window_size[0] - text.get_width()) // 2
     text_y = (window_size[1] - text.get_height()) // 2
-    #text_x = (annotated_image_bgr.shape[1] - text_size[0]) // 2
-    #text_y = (annotated_image_bgr.shape[0] + text_size[1]) // 2
+    text_x_out = (annotated_image_bgr.shape[1] - text_size[0]) // 2
+    text_y_out = (annotated_image_bgr.shape[0] + text_size[1]) // 2
 
     if frame_index in filtered_significant_beats:
         screen.blit(text, (text_x, text_y))
         #pygame.display.update()
-        cv2.putText(annotated_image_bgr, text, (text_x, text_y), font, font_scale, font_color, font_thickness)
+        cv2.putText(annotated_image_bgr, text_out, (text_x_out, text_y_out), font_out, font_scale, font_color, font_thickness)
 
         beats.append(frame_index)
         bpm = calculate_bpm(frame_index, beats, fps, bpm_window)
@@ -87,7 +87,7 @@ def print_beats(frame_index, annotated_image_bgr, filtered_significant_beats, be
     elif text_display_counter > 0:
         screen.blit(text, (text_x, text_y))
         #pygame.display.update()
-        cv2.putText(annotated_image_bgr, text, (text_x, text_y), font, font_scale, font_color, font_thickness)
+        cv2.putText(annotated_image_bgr, text_out, (text_x_out, text_y_out), font_out, font_scale, font_color, font_thickness)
         text_display_counter -= 1
 
     return text_display_counter

@@ -46,7 +46,7 @@ class cycleOne:
         process_video(self.cap, self.out, self.detector, self.frame_array, self.processed_frame_array, self.processing_intervals, self.swaying_detector, self.mirror_detector)
         
         # analyze detected movements for beats
-        (self.filtered_significant_beats, self.beat_coordinates, self.y_peaks, self.y_valleys, self.x, self.y) = filter_beats(self.frame_array, self.processed_frame_array)
+        (self.filtered_significant_beats, self.beat_coordinates, self.y_peaks, self.y_valleys, self.y, self.x) = filter_beats(self.frame_array, self.processed_frame_array)
 
         # After beat detection, add more debug info
         print("\n=== Beat Detection Results ===")
