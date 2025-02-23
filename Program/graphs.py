@@ -140,7 +140,7 @@ def overtime_graph(y):
     peak_heights = [-y_normalized[i] for i in y_peaks]
     
     if peak_heights:
-        large_wave_threshold = np.percentile(peak_heights, 75)
+        large_wave_threshold = np.percentile(peak_heights, 66)
         large_wave_indices = [i for i in y_peaks if -y_normalized[i] > large_wave_threshold]
         small_wave_counts = []
 
