@@ -1,4 +1,8 @@
 # Conducting_Tutor
+
+#imports 
+pip install scikit-learn
+
 # Project Overview
 
 This project processes video data to detect conducting movements and generate visualizations. Below is a brief description of each file in the project:
