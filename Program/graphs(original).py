@@ -259,7 +259,7 @@ def cluster_graph(beat_coordinates, segment_suffix=""):
     plt.close()
 
 def overtime_graph(y, segment_suffix=""):
-    export_path = get_export_path()  
+    export_path = get_export_path()
     plt.figure(figsize=(12, 6))
 
     # Plot inverted Y coordinates for visual consistency
@@ -277,9 +277,6 @@ def overtime_graph(y, segment_suffix=""):
     y_peaks, _ = find_peaks(-np.array(y_normalized), prominence=prominence, distance=distance)
     y_valleys, _ = find_peaks(y_normalized, prominence=prominence, distance=distance)
 
-    # Calculate time signature
-    time_signature = estimate_time_signature(y_peaks, y_normalized)
-
     # Mark peaks and valleys on the plot
     for valley in y_valleys:
         plt.plot(valley, -y_normalized[valley], 'o', color='purple', label="Downbeat" if valley == y_valleys[0] else None)
@@ -287,6 +284,24 @@ def overtime_graph(y, segment_suffix=""):
     for peak in y_peaks:
         plt.plot(peak, -y_normalized[peak], 'o', color='blue', label="Peak" if peak == y_peaks[0] else None)
         plt.text(peak, -y_normalized[peak], 'Peak', color='blue', fontsize=8, ha='right')
+
+    # Estimate time signature from peaks
+    peak_heights = [-y_normalized[i] for i in y_peaks]
+    
+    if peak_heights:
+        large_wave_threshold = np.percentile(peak_heights, 75)
+        large_wave_indices = [i for i in y_peaks if -y_normalized[i] > large_wave_threshold]
+        small_wave_counts = []
+
+        for i in range(1, len(large_wave_indices)):
+            small_wave_count = sum(1 for j in y_peaks if large_wave_indices[i-1] < j < large_wave_indices[i] and -y_normalized[j] <= large_wave_threshold)
+            small_wave_counts.append(small_wave_count)
+
+            time_signature = small_wave_count + 1
+            print(f"Estimated Time Signature at frame {large_wave_indices[i]}: {time_signature}/4")
+
+    else:
+        print("No significant peaks detected to determine time signature.")
 
     # Print detected peaks for debugging
     print("Detected Peaks and Heights:")
@@ -304,26 +319,6 @@ def overtime_graph(y, segment_suffix=""):
     output_file = os.path.join(export_path, video_overtime_plot_name() + segment_suffix + '.png')
     plt.savefig(output_file, bbox_inches='tight')
     plt.close()
-
-    return time_signature
-
-def estimate_time_signature(y_peaks, y_normalized):
-    # Check if y_peaks is empty using .size
-    if y_peaks.size == 0:
-        return 4  # Default to 4 if no peaks detected
-
-    # Example logic: Count the number of beats in a certain window
-    large_wave_threshold = np.percentile([-y_normalized[i] for i in y_peaks], 75)
-    large_wave_indices = [i for i in y_peaks if -y_normalized[i] > large_wave_threshold]
-    small_wave_counts = []
-
-    for i in range(1, len(large_wave_indices)):
-        small_wave_count = sum(1 for j in y_peaks if large_wave_indices[i-1] < j < large_wave_indices[i] and -y_normalized[j] <= large_wave_threshold)
-        small_wave_counts.append(small_wave_count)
-
-    time_signature = small_wave_count + 1 if small_wave_counts else 4  # Default to 4 if no small waves detected
-    print(f"Estimated Time Signature: {time_signature}/4")
-    return time_signature
 
 def swaying_graph(mid, default_mid, threshold, segment_suffix=""):
     export_path = get_export_path()

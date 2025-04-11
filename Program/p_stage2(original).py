@@ -253,7 +253,19 @@ def output_process_video(cap, detector, filtered_significant_beats, processing_i
         y_pos += 40
         cv2.putText(panel, f"Time signature: {metrics['suggested_time_signature']}", (10, y_pos), 
                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
-               
+        
+        y_pos += 40
+        cv2.putText(panel, f"Pattern: {metrics['pattern_type']}", (10, y_pos), 
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
+        
+        y_pos += 40
+        cv2.putText(panel, f"Pattern conf: {metrics['pattern_confidence']}%", (10, y_pos), 
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
+        
+        y_pos += 40
+        cv2.putText(panel, f"Sway index: {metrics['sway_index']:.2f}", (10, y_pos), 
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
+        
         # Add segment info
         y_pos += 60
         start_frame, end_frame = segment_info
@@ -347,7 +359,7 @@ def output_process_video(cap, detector, filtered_significant_beats, processing_i
                         elif most_common >= 5:
                             return f"{most_common}/8"
             
-            return "Not Detected"  # Default
+            return "4/4"  # Default
             
         except Exception as e:
             print(f"Error in time signature detection: {e}")
@@ -406,6 +418,12 @@ def output_process_video(cap, detector, filtered_significant_beats, processing_i
             try:
                 # Extract coordinates from the existing frame_array
                 if relative_frame in filtered_significant_beats:
+                    # Since these are beat frames, likely to have good landmark detection
+                    # We'll find corresponding y-coordinate from detected landmarks
+                    
+                    # This is where we'd normally get coordinates from MediaPipe
+                    # But we'll use a simpler approach to avoid duplicate detection
+                    # We'll use the y-coordinate from swaying detector if available
                     if hasattr(swaying_detector, 'last_right_hand_y'):
                         y_coords.append(swaying_detector.last_right_hand_y)
                     elif hasattr(swaying_detector, 'midpoint'):
@@ -467,17 +485,18 @@ def output_process_video(cap, detector, filtered_significant_beats, processing_i
             # Let swaying detector add its visualization
             try:
                 midpoint_x = swaying_detector.default_midpoint_x
-                mirror_detector.print_mirroring(frame_index, output_frame, midpoint_x)
+                mirror_detector.print_mirroring(frame_index, annotated_image_bgr, midpoint_x)
             except Exception as e:
                 print(f"Warning: Error in mirroring detection: {e}")
-        
+            
+
             try:
-                swaying_detector.swaying_print(frame_index, output_frame)
+                swaying_detector.swaying_print(frame_index, output_frame, midpoint_x)
             except Exception as e:
                 print(f"Warning: Error in swaying detection: {e}")
 
             try:
-                elbow_detector.elbow_print(frame_index, output_frame)
+                elbow_detector.elbow_print(frame_index, annotated_image_bgr)
             except Exception as e:
                 print(f"Warning: Error in elbow detection: {e}")
 
@@ -486,6 +505,10 @@ def output_process_video(cap, detector, filtered_significant_beats, processing_i
                 cueing_detector.print_cueing(frame_index, mirror_detector, left_hand_y)
             except Exception as e:
                 print(f"Warning: Error in cueing detection: {e}")
+
+            # Update sway index for side panel
+            if hasattr(swaying_detector, 'swayingIndex'):
+                conducting_metrics["sway_index"] = swaying_detector.swayingIndex
         
         # Create side panel with current metrics
         side_panel = create_side_panel(

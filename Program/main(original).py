@@ -14,7 +14,6 @@ from datetime import datetime
 import subprocess
 
 # Import interface module
-from cueing import cueingDetection
 from interface import run_interface
 from sanrio_interface import run_sanrio_interface
 
@@ -839,9 +838,6 @@ class CycleOne:
         # initialize movement detectors
         self.swaying_detector = swayingDetection()
         self.mirror_detector = mirrorDetection()
-        self.cueing_detector = cueingDetection() 
-        self.elbow_detector = elbowDetection()
-        self.start_end_detector = startEndDetection()
 
         # setup video writer
         export_path = config["export_path"]
@@ -870,8 +866,8 @@ class CycleOne:
         print("================================\n")
 
         # process video and detect beats
-        process_video(self.cap, self.detector, self.frame_array, self.processed_frame_array, self.processing_intervals, self.swaying_detector, self.mirror_detector, self.elbow_detector, self.start_end_detector)
-
+        process_video(self.cap, self.detector, self.frame_array, self.processed_frame_array, 
+                     self.processing_intervals, self.swaying_detector, self.mirror_detector)
         
         # analyze detected movements for beats
         (self.filtered_significant_beats, self.beat_coordinates, self.y_peaks, self.y_valleys, self.y, self.x) = filter_beats(self.frame_array, self.processed_frame_array)
@@ -900,8 +896,6 @@ class CycleTwo:
         # reuse swaying detector from cycle one
         self.swaying_detector = cycle_one_instance.swaying_detector
         self.mirror_detector = cycle_one_instance.mirror_detector
-        self.cueing_detector = cycle_one_instance.cueing_detector
-        self.elbow_detector = cycle_one_instance.elbow_detector
         self.pattern_detector = patternDetection()
         
         # setup video writer
@@ -939,8 +933,8 @@ class CycleTwo:
         # Process video with detected beats
         output_process_video(self.cap, self.detector, 
                            cycle_one_instance.filtered_significant_beats,
-                           cycle_one_instance.processing_intervals, self.swaying_detector, self.mirror_detector, 
-                            self.cueing_detector, self.elbow_detector)
+                           cycle_one_instance.processing_intervals, 
+                           self.swaying_detector)
         
         
         graph_options = config.get("processing_options", {}).get("graph_options", None)

@@ -11,6 +11,9 @@ def process_frame(cap, detector, image):
     if image is None:
         return None, None
 
+    # Add debug print for frame position
+    print(f"Current frame position: {int(cap.get(cv2.CAP_PROP_POS_FRAMES))}", end='\r')
+
     # process image through mediapipe
     frame_timestamp_ms = round(cap.get(cv2.CAP_PROP_POS_MSEC))
     image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -24,19 +27,14 @@ def process_frame(cap, detector, image):
     return annotated_image_bgr, detection_result
 
 # processes landmarks for each frame, tracking hand positions and movement
-def process_landmarks(detection_result, frame_array, processed_frame_array, processing_active, swaying_detector, mirror_detector, elbow_detector, start_end_detector, frame_number, processing_intervals):
+def process_landmarks(detection_result, frame_array, processed_frame_array, processing_active, swaying_detector, mirror_detector):
     pose_landmarks_list = detection_result.pose_landmarks
     if pose_landmarks_list:
         for landmarks in pose_landmarks_list:
             if len(landmarks) > 16:
                 # get right hand coordinates
-                x16, y16 = landmarks[16].x, landmarks[16].y 
-
-                # get left hand coordinates
-                x15, y15 = landmarks[15].x, landmarks[15].y
-
-                # get right shoulder coordinates.
-                x12, y12 = landmarks[12].x, landmarks[12].y
+                x16 = landmarks[16].x
+                y16 = landmarks[16].y
                 
                 # store coordinates
                 frame_array.append((x16, y16))
@@ -46,30 +44,16 @@ def process_landmarks(detection_result, frame_array, processed_frame_array, proc
                     processed_frame_array.append((np.nan, np.nan))
 
                 # update movement detectors
-                mirror_detector.mirror_calculation(x15, y15, x16, y16)
-                swaying_detector.midpoint_calculation(x12, landmarks[11].x)
+                mirror_detector.mirror_calculation(landmarks[15].x, landmarks[15].y, landmarks[16].x, landmarks[16].y)
+                swaying_detector.midpoint_calculation(landmarks[12].x, landmarks[11].x)
                 
-                #14 is elbow, 16 is shoulder, 24 is hip saved to be used
-                elbow_detector.elbow_calculation((landmarks[14].x, landmarks[14].y), (x12, y12), (landmarks[24].x, landmarks[24].y))
-
-                # Check for start motion detection
-                if not processing_active:
-                    processing_active = start_end_detector.start_processing(y16, y15)
-                    if processing_active:
-                        start_end_detector.current_start_frame = frame_number  # Set start frame
-                else:
-                    processing_active = start_end_detector.end_processing(x16, x15, y16, y15)
-                    if not processing_active and start_end_detector.current_start_frame is not None:
-                        processing_intervals.append((start_end_detector.current_start_frame, frame_number))
-                        start_end_detector.current_start_frame = None  # Reset start frame
-
                 # Set the midpoint when processing starts
                 if processing_active and not swaying_detector.midpointflag:
                     swaying_detector.set_midpoint()  # This will set the default midpoint only when processing starts
-    return processing_active
+    return
 
 # main video processing loop with predetermined intervals
-def process_video(cap, detector, frame_array, processed_frame_array, processing_intervals, swaying_detector, mirror_detector, elbow_detector, start_end_detector):
+def process_video(cap, detector, frame_array, processed_frame_array, processing_intervals, swaying_detector, mirror_detector):
     print("\n=== Video Processing Debug Information ===")
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     fps = int(cap.get(cv2.CAP_PROP_FPS))
@@ -146,15 +130,13 @@ def process_video(cap, detector, frame_array, processed_frame_array, processing_
             swaying_detector.set_midpoint_flag_false()
             print(f"Ended processing at frame: {frame_number}")
         
-        start_end_detector.processing_active = is_processing
-
         # process current frame with MediaPipe
         annotated_image_bgr, detection_result = process_frame(cap, detector, image)
         
         if annotated_image_bgr is not None:
             # Process landmarks and save annotated frame
-            is_processing = process_landmarks(detection_result, frame_array, processed_frame_array, 
-                             is_processing, swaying_detector, mirror_detector, elbow_detector, start_end_detector, frame_number, processing_intervals)
+            process_landmarks(detection_result, frame_array, processed_frame_array, 
+                             is_processing, swaying_detector, mirror_detector)
         # increment frame counter
         frame_number += 1
         

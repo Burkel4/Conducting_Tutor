@@ -1,0 +1,36 @@
+{
+  "video_path": "C:/Users/LBurke/Desktop/MediaPipe/Conducting_Tutor/Program/4-4stacatto(3).mp4",
+  "export_path": "output",
+  "crop_rect": [
+    850,
+    399,
+    295,
+    574
+  ],
+  "process_markers": [
+    [
+      0,
+      157
+    ]
+  ],
+  "processing_options": {
+    "generate_beat_plot": true,
+    "generate_hand_path": true,
+    "generate_cluster_graph": true,
+    "generate_overtime_graph": true,
+    "generate_swaying_graph": true,
+    "generate_mirror_x_graph": true,
+    "generate_mirror_y_graph": true,
+    "export_beat_detection": false,
+    "export_pattern_analysis": false,
+    "graph_options": {
+      "generate_beat_plot": true,
+      "generate_hand_path": true,
+      "generate_cluster_graph": true,
+      "generate_overtime_graph": true,
+      "generate_swaying_graph": true,
+      "generate_mirror_x_graph": true,
+      "generate_mirror_y_graph": true
+    }
+  }
+}

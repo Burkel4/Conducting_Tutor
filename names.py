@@ -2,7 +2,7 @@ from imports import *
 import os
 
 VIDEO_PATH = "C:/Users/LBurke/Desktop/MediaPipe/Conducting_Tutor/Program/4-4stacatto(3).mp4"
-EXPORT_PATH = "output\4-4stacatto(3)_analysis_20250410_015351\conducting_analysis"
+EXPORT_PATH = "output\4-4stacatto(3)_analysis_20250410_012002\conducting_analysis"
 
 # returns the name of the video file being processed
 def initialize_video():

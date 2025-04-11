@@ -25,6 +25,7 @@ import sys
 import pygame
 from numpy import mean
 import subprocess
+from sklearn.cluster import KMeans # type: ignore 
 
 # Mediapipe imports
 import mediapipe as mp
@@ -42,3 +43,5 @@ from mirror import mirrorDetection
 from graphs import *
 from interface import *
 from sanrio_interface import *
+from elbow import *
+from start_end import *
