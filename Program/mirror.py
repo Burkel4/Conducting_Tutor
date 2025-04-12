@@ -1,3 +1,5 @@
+# This file includes the logic for mirroring detection
+
 from imports import *
 
 class mirrorDetection:

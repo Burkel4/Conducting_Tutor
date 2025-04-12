@@ -1,3 +1,6 @@
+# This file is the main execution point of the program
+# it calls both processing cycles
+
 from imports import *
 
 # handles the first pass through the video, detecting conducting movements and beats
@@ -49,7 +52,7 @@ class cycleOne:
         process_video(self.cap, self.out, self.detector, self.frame_array, self.processed_frame_array, self.processing_intervals, self.swaying_detector, self.mirror_detector, self.elbow_detector, self.start_end_detector)
         
         # analyze detected movements for beats
-        (self.filtered_significant_beats, self.beat_coordinates, self.y_peaks, self.y_valleys, self.y, self.x) = filter_beats(self.frame_array, self.processed_frame_array)
+        (self.filtered_significant_beats, self.beat_coordinates, self.y_peaks, self.y_valleys, self.y_inverted, self.y, self.x) = filter_beats(self.frame_array, self.processed_frame_array)
 
         # After beat detection, add more debug info
         print("\n=== Beat Detection Results ===")
@@ -75,7 +78,6 @@ class cycleTwo:
         self.mirror_detector = cycle_one_instance.mirror_detector
         self.cueing_detector = cycle_one_instance.cueing_detector
         self.elbow_detector = cycle_one_instance.elbow_detector
-        self.pattern_detector = patternDetection()
 
         # setup video writer
         self.frame_width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -87,13 +89,7 @@ class cycleTwo:
         self.processing_intervals = cycle_one_instance.processing_intervals
         output_process_video(self.cap, self.out, self.detector, cycle_one_instance.filtered_significant_beats, 
                             self.processing_intervals, self.swaying_detector, self.mirror_detector, 
-                            self.cueing_detector, self.elbow_detector)
-        
-        # Detect patterns and write to file
-        patterns = self.pattern_detector.pattern_detection(cycle_one_instance.beat_coordinates)
-        with open(self.videoFileName + "_video_pattern.txt", "w") as f:
-            for pattern in patterns:
-                f.write(pattern + "\n")
+                            self.cueing_detector, self.elbow_detector, cycle_one_instance.y_inverted)
 
         # generate analysis graphs
         generate_all_graphs(cycle_one_instance)

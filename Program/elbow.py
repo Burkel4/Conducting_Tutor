@@ -16,16 +16,15 @@ class elbowDetection:
         self.shoulder_coords.append(shoulder)
         self.hip_coords.append(hip)
     
-    def elbow_print(self, frame_index, annotated_image_bgr):
-        angle = self.calculate_angle(frame_index) 
+    def elbow_print(self, frame_index, annotated_image_bgr, inverted_y):
+        angle = self.calculate_angle(frame_index, inverted_y) 
 
         angle_threshold = 32
         if angle is not None and angle > angle_threshold:
             cv2.putText(annotated_image_bgr, "Watch Elbow", (50, 250), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 2) #type: ignore
         return
     
-    def calculate_angle(self, frame_index):
-
+    def calculate_angle(self, frame_index, inverted_y):
         # Check if frame_index is within the valid range
         if frame_index < 0 or frame_index >= len(self.shoulder_coords):
             print(f"Frame index {frame_index} is out of range. Returning None.")
@@ -35,10 +34,10 @@ class elbowDetection:
         B = self.elbow_coords[frame_index]      # Elbow coordinates
         C = self.hip_coords[frame_index]        # Hip coordinates
 
-        # Invert the y-coordinates 
-        A_inverted = (A[0], -A[1])
-        B_inverted = (B[0], -B[1])
-        C_inverted = (C[0], -C[1])
+        # Use the passed inverted y-coordinates
+        A_inverted = (A[0], inverted_y[frame_index])
+        B_inverted = (B[0], inverted_y[frame_index])
+        C_inverted = (C[0], inverted_y[frame_index])
 
         # Calculate vectors using the inverted coordinates
         AB = (B_inverted[0] - A_inverted[0], B_inverted[1] - A_inverted[1])  # Vector AB (shoulder to elbow)

@@ -1,3 +1,5 @@
+# This is the first processing cycle of the program
+
 from imports import *
 
 # processes a single frame and returns the annotated image and detection results

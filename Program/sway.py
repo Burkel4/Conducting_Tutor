@@ -38,9 +38,9 @@ class swayingDetection:
     def set_midpoint_flag_false(self):
         self.midpointflag = False
 
-    def swaying_print(self, frame_index, annotated_image_bgr):
+    def swaying_print(self, frame_index, annotated_image_bgr, inverted_y):
         if frame_index < len(self.midpoints_x):
             midpoint_x = self.midpoints_x[frame_index]
-            if midpoint_x > self.default_midpoint_x + self.sway_threshold or midpoint_x < self.default_midpoint_x - self.sway_threshold:
+            if midpoint_x > inverted_y[frame_index] + self.sway_threshold or midpoint_x < inverted_y[frame_index] - self.sway_threshold:
                 cv2.putText(annotated_image_bgr, "Swaying", (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2)
         return

@@ -1,3 +1,6 @@
+# This file creates all the graphs at the end of the video
+# processing cycle. 
+
 from imports import *
 
 # generates all analysis graphs from the collected data
@@ -8,9 +11,6 @@ def generate_all_graphs(cycle_one):
     hand_path_graph(cycle_one.x, cycle_one.y)
 
     time_signature = overtime_graph(cycle_one.y)  # Calculate time signature, also calls graph to be displayed
-    
-    # Print the time signature used
-    print(f"Time Signature Used: {time_signature}/4")
 
     # Pass time_signature to cluster_graph
     cluster_graph(cycle_one.beat_coordinates, time_signature)  # Use the calculated time signature

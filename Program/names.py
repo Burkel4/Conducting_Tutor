@@ -1,14 +1,16 @@
+# This files store all naming for the graphs
+
 from imports import *
 
 # returns the name of the video file being processed
 def initialize_video():
-    videoFileName = "C:/Users/Jeffrey Ernest/Desktop/videos/test(2).mp4"
+    videoFileName = "C:/Users/Jeffrey Ernest/Desktop/videos/sampo_nikita_ircam_10.mov"
     return videoFileName
 
 # returns name for the final output video
 def video_out_name():
     videoFileName = initialize_video()
-    outNames = videoFileName + "_Fill_output"
+    outNames = videoFileName + '_Fill_output'
     return outNames
 
 # returns name for the main coordinates plot

@@ -1,3 +1,5 @@
+# This file includes the logic for mediapipe setup
+
 from imports import *
 
 class mediaPipeDeclaration:

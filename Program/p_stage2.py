@@ -1,3 +1,5 @@
+# This is the second processing point of the program
+
 from imports import *
 
 # processes a single frame and returns the annotated image
@@ -82,7 +84,7 @@ def print_beats(frame_index, annotated_image_bgr, filtered_significant_beats, be
 
 # processes video for second pass, displaying beats and generating analysis
 def output_process_video(cap, out, detector, filtered_significant_beats, processing_intervals, 
-                        swaying_detector, mirror_detector, cueing_detector, elbow_detector):
+                        swaying_detector, mirror_detector, cueing_detector, elbow_detector, inverted_y):
     # Add debug information at start
     print("\n=== Cycle Two Debug Information ===")
     fps = int(cap.get(cv2.CAP_PROP_FPS))
@@ -114,7 +116,6 @@ def output_process_video(cap, out, detector, filtered_significant_beats, process
         if is_within_intervals(frame_index, processing_intervals):
             text_display_counter = print_beats(frame_index, annotated_image_bgr, filtered_significant_beats, beats, fps, bpm_window, text_display_counter)
             
-            
             # Display "Processing" 
             cv2.putText(annotated_image_bgr, "Processing", (350, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 2)
             
@@ -123,17 +124,17 @@ def output_process_video(cap, out, detector, filtered_significant_beats, process
         # Print mirroring on the annotated image, passing the midpoint
         mirror_detector.print_mirroring(frame_index, annotated_image_bgr, midpoint_x)
         
-        # Print swaying to annotated video
-        swaying_detector.swaying_print(frame_index, annotated_image_bgr)
+        # Print swaying to annotated video, passing the inverted y-coordinates
+        swaying_detector.swaying_print(frame_index, annotated_image_bgr, inverted_y)
 
-        # Print elbow to far out to video
-        elbow_detector.elbow_print(frame_index, annotated_image_bgr)
+        # Print elbow to far out to video, passing the inverted y-coordinates
+        elbow_detector.elbow_print(frame_index, annotated_image_bgr, inverted_y)  # Pass inverted y-coordinates
 
         # Get the Y-coordinates of the hands for cueing
         left_hand_y = mirror_detector.left_hand_y[frame_index] if frame_index < len(mirror_detector.left_hand_y) else 0
         
         # Call print_cueing to display crescendo/decrescendo using the cueing_detector
-        cueing_detector.print_cueing(annotated_image_bgr, mirror_detector, left_hand_y)
+        cueing_detector.print_cueing(annotated_image_bgr, mirror_detector, left_hand_y, inverted_y, frame_index)  # Pass frame_index
 
         # display frame number and update display
         cv2.putText(annotated_image_bgr, f'Frame: {frame_index}', (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 2)

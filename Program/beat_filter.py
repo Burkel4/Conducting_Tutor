@@ -1,3 +1,7 @@
+# This file includes the logic for beat detection information
+# including x and y coords, peaks, vallys, etc..
+
+
 from imports import *
 
 # filters points based on minimum distance threshold
@@ -26,17 +30,20 @@ def filter_beats(frame_array, processed_frame_array):
     x = np.array(x).flatten()
     y = np.array(y).flatten()
 
-    # find peaks and valleys in raw coordinates
-    y_peaks, _ = find_peaks(y, prominence=0.005, distance = 5)
-    y_valleys, _ = find_peaks(-y, prominence=0.005, distance = 5)
+    # Invert y-coordinates once
+    y_inverted = -y
+
+    # find peaks and valleys in raw coordinates using inverted y
+    y_peaks, _ = find_peaks(y_inverted, prominence=0.005, distance=5)
+    y_valleys, _ = find_peaks(-y_inverted, prominence=0.005, distance=5)
 
     # process user-selected coordinates
-    #x_proc = np.array([coord[0] for coord in processed_frame_array]).flatten()
     y_proc = np.array([coord[1] for coord in processed_frame_array]).flatten()
+    y_proc_inverted = -y_proc  # Invert processed y-coordinates
 
     # find peaks and valleys in processed coordinates
-    y_peaks_proc, _ = find_peaks(y_proc, prominence=0.005)
-    y_valleys_proc, _ = find_peaks(-y_proc, prominence=0.005)
+    y_peaks_proc, _ = find_peaks(y_proc_inverted, prominence=0.005)
+    y_valleys_proc, _ = find_peaks(-y_proc_inverted, prominence=0.005)
 
     # convert peak/valley indices to lists
     y_peaks_proc = list(y_peaks_proc)
@@ -44,9 +51,9 @@ def filter_beats(frame_array, processed_frame_array):
 
     # combine all detected beats and filter by threshold
     filtered_significant_beats = list(y_peaks)
-    # Get the x,y coordinates for each beat
-    beat_coord_list= list(y_valleys)
-    beat_coordinates = [(x[i], y[i]) for i in beat_coord_list]
+    # Get the x,y coordinates for each beat using inverted y-coordinates
+    beat_coord_list = list(y_valleys)
+    beat_coordinates = [(x[i], y_inverted[i]) for i in beat_coord_list]
 
     # Debugging output to verify structure
     print("Beat Coordinates:", beat_coordinates)
@@ -57,4 +64,4 @@ def filter_beats(frame_array, processed_frame_array):
     print(f"Number of filtered beats: {len(filtered_significant_beats)}")
     print("==================================\n")
 
-    return filtered_significant_beats, beat_coordinates, y_peaks, y_valleys, y, x
+    return filtered_significant_beats, beat_coordinates, y_peaks, y_valleys, y_inverted, y, x
